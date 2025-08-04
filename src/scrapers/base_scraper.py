@@ -1,7 +1,3 @@
-"""
-Base scraper class for Portuguese toll systems
-"""
-
 import logging
 import os
 import tempfile
@@ -22,7 +18,6 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 
 
 class BaseScraper(ABC):
-    """Base class for toll scrapers"""
     
     def __init__(self, headless: bool = True, timeout: int = 10):
         self.headless = headless
@@ -32,7 +27,6 @@ class BaseScraper(ABC):
         self.logger = self._setup_logging()
         
     def _setup_logging(self):
-        """Configure logging"""
         logger = logging.getLogger(self.__class__.__name__)
         logger.setLevel(logging.INFO)
         
@@ -45,7 +39,6 @@ class BaseScraper(ABC):
         return logger
         
     def initialize_driver(self) -> bool:
-        """Initialize Chrome WebDriver"""
         try:
             chrome_options = Options()
             if self.headless:
@@ -58,7 +51,6 @@ class BaseScraper(ABC):
             temp_dir = tempfile.mkdtemp()
             chrome_options.add_argument(f'--user-data-dir={temp_dir}')
             
-            # Download ChromeDriver
             driver_dir = tempfile.mkdtemp()
             url = 'https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.183/linux64/chromedriver-linux64.zip'
             
@@ -89,7 +81,6 @@ class BaseScraper(ABC):
             return False
             
     def navigate_to_page(self, url: str) -> bool:
-        """Navigate to specified URL"""
         try:
             self.driver.get(url)
             self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
@@ -100,7 +91,6 @@ class BaseScraper(ABC):
             return False
             
     def cleanup(self):
-        """Clean up resources"""
         if self.driver:
             try:
                 self.driver.quit()
@@ -110,5 +100,4 @@ class BaseScraper(ABC):
                 
     @abstractmethod
     def scrape(self) -> List[Dict]:
-        """Abstract method for scraping implementation"""
         pass

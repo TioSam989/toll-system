@@ -113,8 +113,38 @@ Modify `config/settings.py` to customize:
 
 ## 🧪 Testing
 
+### Unit Tests
 ```bash
 python -m pytest tests/
+```
+
+### TestCafe E2E Tests (TypeScript)
+```bash
+# Install dependencies
+npm install
+
+# Run all TestCafe tests
+npm run test:e2e
+
+# Run tests in headless mode
+npm run test:e2e:headless
+
+# Run tests in Firefox
+npm run test:e2e:firefox
+
+# Run specific test file
+testcafe chrome tests/testcafe/initial-test.ts
+```
+
+### CLI Toll Calculator
+```bash
+# Calculate toll between two addresses
+npm run toll-calc "Lisboa" "Porto"
+npm run toll-calc "1250-161" "4000-322"
+npm run toll-calc "Coimbra" "Aveiro"
+
+# Perfect for Raspberry Pi automation
+npm run toll-calc "Your Origin" "Your Destination"
 ```
 
 ## 📝 Logging

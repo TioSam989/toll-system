@@ -1,7 +1,3 @@
-"""
-Brisa Concessao toll scraper
-"""
-
 import os
 import time
 from datetime import datetime
@@ -14,14 +10,12 @@ from .base_scraper import BaseScraper
 
 
 class BrisaScraper(BaseScraper):
-    """Scraper for Brisa Concessao toll rates"""
     
     def __init__(self, headless: bool = True, timeout: int = 15):
         super().__init__(headless, timeout)
         self.base_url = "https://www.brisaconcessao.pt/en/clients/tolls/toll-rates"
         
     def scrape(self) -> List[Dict]:
-        """Scrape Brisa toll rates and download PDF"""
         try:
             if not self.initialize_driver():
                 return []
@@ -32,7 +26,6 @@ class BrisaScraper(BaseScraper):
                 
             time.sleep(3)
             
-            # Find PDF download link
             download_links = self.driver.find_elements(By.PARTIAL_LINK_TEXT, "Click here to download the rates for 2025")
             
             if not download_links:
@@ -43,7 +36,6 @@ class BrisaScraper(BaseScraper):
                 pdf_url = download_links[0].get_attribute('href')
                 self.logger.info(f"Found PDF URL: {pdf_url}")
                 
-                # Download PDF
                 pdf_path = self._download_pdf(pdf_url)
                 if pdf_path:
                     return [{
@@ -65,11 +57,9 @@ class BrisaScraper(BaseScraper):
             self.cleanup()
             
     def _download_pdf(self, pdf_url: str) -> str:
-        """Download PDF file"""
         try:
             response = requests.get(pdf_url)
             
-            # Create data directory
             pdf_dir = 'data/pdfs'
             os.makedirs(pdf_dir, exist_ok=True)
             
