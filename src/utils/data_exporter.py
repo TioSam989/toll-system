@@ -1,7 +1,3 @@
-"""
-Data export utilities
-"""
-
 import csv
 import json
 import os
@@ -10,14 +6,12 @@ from typing import Dict, List
 
 
 class DataExporter:
-    """Utility class for exporting toll data"""
     
     def __init__(self, output_dir: str = "data/exports"):
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
         
     def export_to_csv(self, tariffs: List[Dict], filename: str = None) -> str:
-        """Export tariffs to CSV file"""
         if not filename:
             filename = f"portuguese_tolls_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         
@@ -39,7 +33,6 @@ class DataExporter:
             return None
             
     def export_to_json(self, tariffs: List[Dict], filename: str = None) -> str:
-        """Export tariffs to JSON file"""
         if not filename:
             filename = f"portuguese_tolls_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
@@ -61,7 +54,6 @@ class DataExporter:
             return None
             
     def export_location_data(self, location_data: Dict, filename: str = None) -> str:
-        """Export location-based toll data"""
         if not filename:
             filename = f"tolls_by_location_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         

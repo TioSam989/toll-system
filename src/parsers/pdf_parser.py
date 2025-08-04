@@ -1,7 +1,3 @@
-"""
-PDF parser for toll rate documents
-"""
-
 import json
 import os
 from datetime import datetime
@@ -14,13 +10,11 @@ except ImportError:
 
 
 class PDFParser:
-    """Parser for toll rate PDF documents"""
     
     def __init__(self):
         self.logger = self._setup_logging()
         
     def _setup_logging(self):
-        """Setup logging"""
         import logging
         logger = logging.getLogger(self.__class__.__name__)
         logger.setLevel(logging.INFO)
@@ -34,7 +28,6 @@ class PDFParser:
         return logger
         
     def parse_brisa_pdf(self, pdf_path: str) -> Dict:
-        """Parse Brisa PDF and organize by location"""
         if not pdfplumber:
             self.logger.warning("pdfplumber not available. Install with: pip install pdfplumber")
             return self._get_sample_data()
@@ -50,12 +43,10 @@ class PDFParser:
                 for page_num, page in enumerate(pdf.pages):
                     self.logger.info(f"Processing page {page_num + 1}")
                     
-                    # Extract text
                     text = page.extract_text()
                     if text:
                         toll_data.update(self._parse_text_content(text))
                     
-                    # Extract tables
                     tables = page.extract_tables()
                     for table in tables:
                         if table:
@@ -69,7 +60,6 @@ class PDFParser:
             return self._get_sample_data()
             
     def _parse_text_content(self, text: str) -> Dict:
-        """Parse text content for toll data"""
         toll_data = {}
         lines = text.split('\n')
         current_location = None
@@ -77,13 +67,11 @@ class PDFParser:
         for line in lines:
             line = line.strip()
             
-            # Look for highway routes
             if any(highway in line for highway in ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9']):
                 current_location = line
                 if current_location not in toll_data:
                     toll_data[current_location] = []
             
-            # Look for prices
             elif '€' in line and current_location:
                 prices = self._extract_prices_from_line(line)
                 for i, price in enumerate(prices):
@@ -97,13 +85,12 @@ class PDFParser:
         return toll_data
         
     def _parse_table_content(self, table: list) -> Dict:
-        """Parse table content for toll data"""
         toll_data = {}
         
         if len(table) <= 1:
             return toll_data
             
-        for row in table[1:]:  # Skip header
+        for row in table[1:]:
             if not row or len(row) < 2:
                 continue
                 
@@ -113,7 +100,6 @@ class PDFParser:
                 if location not in toll_data:
                     toll_data[location] = []
                 
-                # Extract prices from remaining columns
                 for i, cell in enumerate(row[1:]):
                     if cell and '€' in str(cell):
                         price = str(cell).replace('€', '').replace(',', '.').strip()
@@ -131,7 +117,6 @@ class PDFParser:
         return toll_data
         
     def _extract_prices_from_line(self, line: str) -> list:
-        """Extract price values from a text line"""
         prices = []
         parts = line.split()
         
@@ -147,7 +132,6 @@ class PDFParser:
         return prices
         
     def _get_sample_data(self) -> Dict:
-        """Get sample toll data"""
         return {
             "A1 Lisboa-Porto": [
                 {"route": "A1 Lisboa-Porto", "vehicle_class": "Class 1", "price": "22.85", "currency": "EUR"},
@@ -164,7 +148,6 @@ class PDFParser:
         }
         
     def save_parsed_data(self, toll_data: Dict, output_dir: str = "data/parsed") -> str:
-        """Save parsed toll data to JSON file"""
         os.makedirs(output_dir, exist_ok=True)
         
         filename = f"brisa_tolls_by_location_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"

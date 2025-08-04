@@ -1,7 +1,3 @@
-"""
-Portugal Tolls website scraper
-"""
-
 import time
 from datetime import datetime
 from typing import Dict, List
@@ -13,14 +9,12 @@ from .base_scraper import BaseScraper
 
 
 class PortugalTollsScraper(BaseScraper):
-    """Scraper for Portugal Tolls website"""
     
     def __init__(self, headless: bool = True, timeout: int = 15):
         super().__init__(headless, timeout)
         self.base_url = "https://www.portugaltolls.com/en/web/portal-de-portagens/tarifarios"
         
     def scrape(self) -> List[Dict]:
-        """Scrape Portugal Tolls tariff data"""
         tariffs = []
         
         try:
@@ -32,14 +26,13 @@ class PortugalTollsScraper(BaseScraper):
                 
             time.sleep(3)
             
-            # Find tariff tables
             tables = self.driver.find_elements(By.CSS_SELECTOR, "table, .tariff-table, .price-table")
             
             for table in tables:
                 try:
                     rows = table.find_elements(By.TAG_NAME, "tr")
                     
-                    for row in rows[1:]:  # Skip header
+                    for row in rows[1:]:
                         cells = row.find_elements(By.TAG_NAME, "td")
                         
                         if len(cells) >= 3:
@@ -67,7 +60,6 @@ class PortugalTollsScraper(BaseScraper):
         return tariffs
         
     def _clean_price(self, price_text: str) -> str:
-        """Clean and standardize price format"""
         if not price_text:
             return ""
             
@@ -81,7 +73,6 @@ class PortugalTollsScraper(BaseScraper):
         return price
         
     def _extract_validity(self, validity_text: str) -> str:
-        """Extract validity period information"""
         if not validity_text:
             return "Current"
             
