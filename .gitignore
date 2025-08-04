@@ -20,34 +20,29 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
 venv/
 env/
 ENV/
 
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Data files
 data/pdfs/*.pdf
 data/parsed/*.json
 data/exports/*.csv
 data/exports/*.json
 
-# Logs
 logs/*.log
 
-# OS
 .DS_Store
 Thumbs.db
 
-# Selenium
 chromedriver*
 geckodriver*
 
-# Temporary files
+node_modules/
+
 *.tmp
 *.temp
