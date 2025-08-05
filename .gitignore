@@ -29,12 +29,8 @@ ENV/
 *.swp
 *.swo
 
-data/pdfs/*.pdf
-data/parsed/*.json
-data/exports/*.csv
-data/exports/*.json
-
-logs/*.log
+data/
+logs/
 
 .DS_Store
 Thumbs.db
@@ -47,5 +43,3 @@ node_modules/
 *.tmp
 *.temp
 
-/screenshots
-/screenshots/screenshots
