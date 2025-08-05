@@ -1,6 +1,6 @@
 # Portuguese Toll Tariffs Scraper
 
-A professional Python application for scraping Portuguese toll tariffs from official transportation websites.
+Python application for scraping Portuguese toll tariffs from official transportation websites.
 
 ## 🏗️ Project Structure
 
@@ -27,30 +27,79 @@ toll-system/
 └── requirements.txt     # Dependencies
 ```
 
-## 🚀 Features
+## Features
 
-- **Modular Architecture**: Clean separation of concerns
-- **Multiple Data Sources**: Brisa Concessao, Portugal Tolls, Infraestruturas de Portugal
-- **PDF Processing**: Automatic PDF download and parsing
-- **Location-Based Organization**: Toll data organized by highway/location
-- **Multiple Export Formats**: CSV, JSON with location grouping
-- **Robust Error Handling**: Fallback mechanisms and comprehensive logging
-- **Professional Logging**: Structured logging with file output
+- Modular architecture with clean separation of concerns
+- Multiple data sources: Brisa Concessao, Portugal Tolls, Infraestruturas de Portugal
+- PDF processing with automatic download and parsing
+- Location-based organization of toll data
+- Export formats: CSV, JSON with location grouping
+- Error handling with fallback mechanisms
+- Structured logging with file output
 
 ## 📦 Installation
 
 1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone <https://github.com/TioSam989/toll-system>
 cd toll-system
 ```
 
-2. **Install dependencies**
+2. **Install Browser Driver (Required for Selenium)**
+
+### For Debian/Ubuntu WSL (Tested & Working):
+```bash
+# Step 1: Update package repositories
+sudo apt update
+
+# Step 2: Install Chromium browser
+sudo apt install chromium
+
+# Step 3: Clear any broken webdriver cache
+rm -rf ~/.wdm
+
+# Step 4: Install system ChromeDriver (recommended)
+sudo apt install chromium-driver
+
+# Step 5: Verify installation
+which chromium
+/usr/bin/chromedriver --version
+```
+
+### Alternative Methods (if above fails):
+```bash
+# Method 1: Install Chromium via snap
+sudo apt install snapd
+sudo snap install chromium
+
+# Method 2: Manual Chrome installation
+cd /tmp
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+sudo apt-get install -f
+
+# Method 3: Install Firefox as fallback
+sudo apt install firefox
+```
+
+### For Kali Linux:
+```bash
+# Kali has limited repositories, use Firefox
+sudo apt update
+sudo apt install firefox
+```
+
+### Troubleshooting:
+- If you get "Exec format error", clear webdriver cache: `rm -rf ~/.wdm`
+- Script automatically detects Chrome, Chromium, or Firefox
+- System drivers are preferred over webdriver-manager downloads
+
+3. **Install Python dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Run the application**
+4. **Run the application**
 ```bash
 python main.py
 ```
@@ -168,7 +217,8 @@ Logs are written to:
 ## 📋 Requirements
 
 - Python 3.7+
-- Chrome browser (for Selenium)
+- Browser: Chromium (recommended), Chrome, or Firefox
+- ChromeDriver or GeckoDriver (auto-installed)
 - Internet connection
 
 ## 🔒 Legal Notice

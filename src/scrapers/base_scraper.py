@@ -1,20 +1,17 @@
 import logging
 import os
-import tempfile
-import time
-import zipfile
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Dict, List
 
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 
 class BaseScraper(ABC):
@@ -48,33 +45,66 @@ class BaseScraper(ABC):
             chrome_options.add_argument('--disable-gpu')
             chrome_options.add_argument('--window-size=1920,1080')
             
-            temp_dir = tempfile.mkdtemp()
-            chrome_options.add_argument(f'--user-data-dir={temp_dir}')
+            chrome_paths = [
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable', 
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser',
+                '/snap/bin/chromium',
+                '/opt/google/chrome/chrome'
+            ]
             
-            driver_dir = tempfile.mkdtemp()
-            url = 'https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.183/linux64/chromedriver-linux64.zip'
+            chrome_binary = None
+            for chrome_path in chrome_paths:
+                if os.path.exists(chrome_path):
+                    chrome_binary = chrome_path
+                    chrome_options.binary_location = chrome_path
+                    self.logger.info(f"Found Chrome at: {chrome_path}")
+                    break
             
-            response = requests.get(url)
-            zip_path = os.path.join(driver_dir, 'chromedriver.zip')
-            
-            with open(zip_path, 'wb') as f:
-                f.write(response.content)
+            if chrome_binary:
+                system_drivers = ['/usr/bin/chromedriver', '/usr/local/bin/chromedriver']
+                driver_path = None
                 
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(driver_dir)
+                for sys_driver in system_drivers:
+                    if os.path.exists(sys_driver):
+                        driver_path = sys_driver
+                        self.logger.info(f"Using system ChromeDriver: {sys_driver}")
+                        break
                 
-            for root, dirs, files in os.walk(driver_dir):
-                for file in files:
-                    if file == 'chromedriver':
-                        actual_driver = os.path.join(root, file)
-                        os.chmod(actual_driver, 0o755)
-                        service = Service(actual_driver)
-                        self.driver = webdriver.Chrome(service=service, options=chrome_options)
-                        self.wait = WebDriverWait(self.driver, self.timeout)
-                        self.logger.info("WebDriver initialized successfully")
-                        return True
-                        
-            raise Exception("ChromeDriver executable not found")
+                if driver_path:
+                    service = Service(driver_path)
+                else:
+                    if 'chromium' in chrome_binary:
+                        service = Service(ChromeDriverManager(chrome_type="chromium").install())
+                    else:
+                        service = Service(ChromeDriverManager().install())
+                
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            else:
+                firefox_paths = ['/usr/bin/firefox', '/usr/bin/firefox-esr']
+                firefox_binary = None
+                
+                for firefox_path in firefox_paths:
+                    if os.path.exists(firefox_path):
+                        firefox_binary = firefox_path
+                        self.logger.info(f"Found Firefox at: {firefox_path}")
+                        break
+                
+                if firefox_binary:
+                    firefox_options = FirefoxOptions()
+                    if self.headless:
+                        firefox_options.add_argument('--headless')
+                    firefox_options.binary_location = firefox_binary
+                    
+                    service = Service(GeckoDriverManager().install())
+                    self.driver = webdriver.Firefox(service=service, options=firefox_options)
+                else:
+                    raise Exception("Neither Chrome/Chromium nor Firefox found. Please install a browser.")
+            
+            self.wait = WebDriverWait(self.driver, self.timeout)
+            self.logger.info("WebDriver initialized successfully")
+            return True
             
         except Exception as e:
             self.logger.error(f"Failed to initialize WebDriver: {e}")

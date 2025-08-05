@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 
 import { chromium } from 'playwright';
-import { existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
-import { fileURLToPath } from 'url';
 
 interface TollResult {
     from: string;
@@ -12,16 +9,10 @@ interface TollResult {
     cost?: string;
     distance?: string;
     error?: string;
-    screenshotPath?: string;
 }
 
 async function calculateToll(fromAddress: string, toAddress: string): Promise<TollResult> {
-    const screenshotsDir = join(process.cwd(), 'screenshots');
-    if (!existsSync(screenshotsDir)) {
-        mkdirSync(screenshotsDir, { recursive: true });
-    }
-    
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     
     try {
@@ -48,13 +39,7 @@ async function calculateToll(fromAddress: string, toAddress: string): Promise<To
             await destSuggestion.click();
         }
 
-        await page.keyboard.press('Enter');
-        
-        await page.waitForTimeout(5000);
-
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const screenshotPath = join(screenshotsDir, `toll-${fromAddress.replace(/[^a-zA-Z0-9]/g, '_')}-to-${toAddress.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}.png`);
-        await page.screenshot({ path: screenshotPath, fullPage: true });
+        await page.waitForTimeout(3000);
 
         const routeContainer = page.locator('.leaflet-routing-container');
         if (await routeContainer.isVisible()) {
@@ -68,29 +53,20 @@ async function calculateToll(fromAddress: string, toAddress: string): Promise<To
                 to: toAddress,
                 route: routeText.trim(),
                 cost: costMatch ? costMatch[1] + '€' : 'Not found',
-                distance: distanceMatch ? distanceMatch[1] + 'km' : 'Not found',
-                screenshotPath
+                distance: distanceMatch ? distanceMatch[1] + 'km' : 'Not found'
             };
         } else {
             return {
                 from: fromAddress,
                 to: toAddress,
-                error: 'Route not calculated',
-                screenshotPath
+                error: 'Route not calculated'
             };
         }
     } catch (error) {
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const screenshotPath = join(screenshotsDir, `toll-error-${timestamp}.png`);
-        try {
-            await page.screenshot({ path: screenshotPath, fullPage: true });
-        } catch {}
-        
         return {
             from: fromAddress,
             to: toAddress,
-            error: `Error: ${error}`,
-            screenshotPath
+            error: `Error: ${error}`
         };
     } finally {
         await browser.close();
@@ -126,12 +102,8 @@ async function main() {
             console.log(`🛣️  Details: ${result.route.substring(0, 200)}...`);
         }
     }
-    
-    if (result.screenshotPath) {
-        console.log(`📸 Screenshot saved: ${result.screenshotPath}`);
-    }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (require.main === module) {
     main().catch(console.error);
 }
