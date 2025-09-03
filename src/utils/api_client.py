@@ -36,7 +36,7 @@ class TollAPIClient:
             self.logger.info(f"Sending {len(toll_data)} toll records to {self.api_url}")
             
             response = requests.put(
-                f"{self.api_url}/api/tolls/update",
+                f"{self.api_url}/tolls/update",
                 json=api_data,
                 headers=headers,
                 timeout=60
