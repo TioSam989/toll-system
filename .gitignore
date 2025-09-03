@@ -23,7 +23,7 @@ wheels/
 venv/
 env/
 ENV/
-
+screenshots/
 .vscode/
 .idea/
 *.swp
@@ -31,6 +31,9 @@ ENV/
 
 data/
 logs/
+
+# Environment variables
+.env
 
 .DS_Store
 Thumbs.db
@@ -42,4 +45,15 @@ node_modules/
 
 *.tmp
 *.temp
+
+# Laravel/PHP files (don't belong in Python project)
+*.php
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
 
